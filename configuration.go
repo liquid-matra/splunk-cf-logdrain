@@ -1,6 +1,9 @@
 package main
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 type Configuration struct {
 	ListenPort     string
@@ -24,29 +27,33 @@ func NewConfiguration() Configuration {
 	return cfg
 }
 
+func (cfg *Configuration) Print() {
+	fmt.Printf("Configuration -> ListenPort: %s\tFluentbitport: %s\t\n", cfg.ListenPort, cfg.FluentBitPort)
+}
+
 func (cfg *Configuration) ReadFromEnv() {
 	variableName := "LISTEN_PORT"
 	content, isSet := os.LookupEnv(variableName)
-	if isSet {
+	if isSet && os.Getenv(variableName) != "" {
 		cfg.ListenPort = content
 	}
 
 	variableName = "TOKEN"
 	content, isSet = os.LookupEnv(variableName)
-	if isSet {
+	if isSet && os.Getenv(variableName) != "" {
 		cfg.Token = content
 	}
 
 	variableName = "SYSLOG_ENDPOINT"
 	content, isSet = os.LookupEnv(variableName)
-	if isSet {
+	if isSet && os.Getenv(variableName) != "" {
 		cfg.SyslogEndpoint = content
 	}
 
 	variableName = "FLUENTBIT_PORT"
 	content, isSet = os.LookupEnv(variableName)
-	if isSet {
-		cfg.SyslogEndpoint = content
+	if isSet && os.Getenv(variableName) != "" {
+		cfg.FluentBitPort = content
 	}
 
 }

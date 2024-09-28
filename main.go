@@ -30,7 +30,7 @@ func realMain(echoChan chan<- *echo.Echo) int {
 	viper.SetDefault("syslog_endpoint", "localhost:5140")
 	viper.AutomaticEnv()
 
-	token := os.Getenv("TOKEN")
+	cfg := NewConfiguration()
 
 	// Echo framework
 	e := echo.New()
@@ -82,12 +82,4 @@ func setupPprof() {
 		if err != nil {
 		}
 	}()
-}
-
-func listenString() string {
-	port := os.Getenv("LISTEN_PORT")
-	if port == "" {
-		port = "8080"
-	}
-	return ":" + port
 }

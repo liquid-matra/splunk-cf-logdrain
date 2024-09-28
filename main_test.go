@@ -1,21 +1,32 @@
 package main
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestListenString(t *testing.T) {
-	cfg := NewConfiguration()
-	defer func() {
-		t.Setenv("FLUENTBIT_PORT", "8080")
-	}()
-	_ = os.Setenv("FLUENTBIT_PORT", "")
-	s := ":" + cfg.FluentBitPort
-	assert.Equal(t, s, ":8080")
-	t.Setenv("FLUENTBIT_PORT", "1028")
-	s = ":" + os.Getenv("FLUENTBIT_PORT")
-	assert.Equal(t, s, ":1028")
+func TestEnvironmentVariables(t *testing.T) {
+
+	type TestCase struct {
+		description string
+		input       string
+		want        string
+	}
+
+	testCases := []TestCase{
+		{description: "the default port of 8080 is used if nothing specified", input: "", want: "8080"},
+		{description: "the provided port is used", input: "1028", want: "1028"},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.description, func(t *testing.T) {
+			t.Setenv("FLUENTBIT_PORT", testCase.input)
+			cfg := NewConfiguration()
+			got := cfg.FluentBitPort
+			t.Logf("VARIABLE IS %s but expected %s", cfg.FluentBitPort, testCase.want)
+			assert.Equal(t, testCase.want, got)
+		})
+	}
+
 }

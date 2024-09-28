@@ -2,6 +2,7 @@ package handlers_test
 
 import (
 	"bytes"
+	"github.com/philips-software/logproxy/queue"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -18,6 +19,11 @@ import (
 type mockProducer struct {
 	t *testing.T
 	q chan logging.Resource
+}
+
+func (m *mockProducer) SetMetrics(mt queue.Metrics) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (m *mockProducer) DeadLetter(_ logging.Resource) error {

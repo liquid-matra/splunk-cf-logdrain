@@ -8,16 +8,16 @@ import (
 
 	syslog "github.com/RackSec/srslog"
 
-	v2syslog "github.com/influxdata/go-syslog/v2"
-	"github.com/influxdata/go-syslog/v2/rfc5424"
 	"github.com/labstack/echo/v4"
+	v4syslog "github.com/leodido/go-syslog/v4"
+	"github.com/leodido/go-syslog/v4/rfc5424"
 )
 
 type SyslogHandler struct {
 	debug  bool
 	token  string
 	writer *syslog.Writer
-	parser v2syslog.Machine
+	parser v4syslog.Machine
 }
 
 func NewSyslogHandler(token, syslogAddr string) (*SyslogHandler, error) {

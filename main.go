@@ -6,8 +6,6 @@ import (
 	"os/signal"
 	"splunk-cf-logdrain/handlers"
 
-	"github.com/spf13/viper"
-
 	"github.com/labstack/echo/v4"
 
 	"net/http"
@@ -24,12 +22,6 @@ func main() {
 }
 
 func realMain(echoChan chan<- *echo.Echo) int {
-
-	viper.SetEnvPrefix("splunk-cf-logdrain")
-	viper.SetDefault("transport_url", "")
-	viper.SetDefault("syslog_endpoint", "localhost:5140")
-	viper.AutomaticEnv()
-
 	cfg := NewConfiguration()
 
 	// Echo framework
@@ -40,8 +32,7 @@ func realMain(echoChan chan<- *echo.Echo) int {
 	e.GET("/health", healthHandler.Handler())
 	e.GET("/api/version", handlers.VersionHandler(buildVersion))
 
-	syslogEndpoint := viper.GetString("syslog_endpoint")
-	syslogHandler, err := handlers.NewSyslogHandler(token, syslogEndpoint)
+	syslogHandler, err := handlers.NewSyslogHandler(cfg.Token, cfg.SyslogEndpoint)
 	if err != nil {
 		fmt.Printf("syslogHandler: %v\n", err)
 		return 8
@@ -53,7 +44,7 @@ func realMain(echoChan chan<- *echo.Echo) int {
 
 	echoChan <- e
 	exitCode := 0
-	if err := e.Start(listenString()); err != nil {
+	if err := e.Start(":" + cfg.ListenPort); err != nil {
 		fmt.Printf("error: %v\n", err)
 		exitCode = 6
 	}

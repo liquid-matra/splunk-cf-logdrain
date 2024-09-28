@@ -21,11 +21,11 @@ User deployable service which implements a pipeline consisting of a small Go app
 
 | Environment     | Description                        | Recommended value                     |
 |-----------------|------------------------------------|---------------------------------------|
- | FLUENT_BIT_PORT | The fluent-bit listen port metrics | 8080                                  |
- | LISTEN_PORT     | The logdrain HTTP listen port      | 2020                                  | 
- | SPLUNK_HOST     | The splunk host to forward to      | Example: `prd-p-xxxx.splunkcloud.com` |
- | SPLUNK_TOKEN    | The Splunk HEC token               |                                       |
- | TOKEN           | The logdrain TOKEN value           |                                       |
+| FLUENT_BIT_PORT | The fluent-bit listen port metrics | 8080                                  |
+| LISTEN_PORT     | The logdrain HTTP listen port      | 2020                                  | 
+| SPLUNK_HOST     | The splunk host to forward to      | Example: `prd-p-xxxx.splunkcloud.com` |
+| SPLUNK_TOKEN    | The Splunk HEC token               |                                       |
+| TOKEN           | The logdrain TOKEN value           |                                       |
 
 ## Example deployment manifest
 

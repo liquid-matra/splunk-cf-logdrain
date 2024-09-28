@@ -9,14 +9,15 @@ import (
 
 func TestListenString(t *testing.T) {
 	cfg := NewConfiguration()
-	port := os.Getenv("PORT")
 	defer func() {
-		_ = os.Setenv("PORT", port)
+		t.Setenv("LISTEN_PORT", "8080")
+
 	}()
-	_ = os.Setenv("PORT", "")
+	_ = os.Setenv("LISTEN_PORT", "")
 	s := ":" + cfg.ListenPort
 	assert.Equal(t, s, ":8080")
-	_ = os.Setenv("PORT", "1028")
-	s = ":" + cfg.ListenPort
+	t.Setenv("LISTEN_PORT", "1028")
+	s = ":" + os.Getenv("LISTEN_PORT")
+	t.Logf("port (s) is: %s", ":"+cfg.ListenPort)
 	assert.Equal(t, s, ":1028")
 }

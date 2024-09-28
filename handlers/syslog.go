@@ -3,10 +3,9 @@ package handlers
 import (
 	"fmt"
 	"io"
+	"log/syslog"
 	"net/http"
 	"os"
-
-	syslog "github.com/RackSec/srslog"
 
 	"github.com/labstack/echo/v4"
 	v4syslog "github.com/leodido/go-syslog/v4"
@@ -37,15 +36,10 @@ func NewSyslogHandler(token, syslogAddr string) (*SyslogHandler, error) {
 	if err != nil {
 		return nil, fmt.Errorf("syslog: %w", err)
 	}
-	//writer.SetFramer(syslog.RFC5425MessageLengthFramer)
-	writer.SetFormatter(RFC5424PassThroughFormatter)
+
 	handler.writer = writer
 	handler.parser = parser
 	return handler, nil
-}
-
-func RFC5424PassThroughFormatter(_ syslog.Priority, _, _, content string) string {
-	return content
 }
 
 func (h *SyslogHandler) Handler() echo.HandlerFunc {

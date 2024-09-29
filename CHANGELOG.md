@@ -17,6 +17,7 @@ Initial OSS release
 ## v0.3.0
 
 - Updated to suppoerted GO version `v1.23`
-- removed direct dependency `viper` and replaced with standard library
-- replaced deprecated `v2` go-syslog package with `github.com/leodido/go-syslog/v4`
+- Removed direct dependency `viper` and replaced with standard library
+- Removed direct dependency `srslog` and replaced with standard library
+- Replaced deprecated `v2` go-syslog package with `github.com/leodido/go-syslog/v4`
 - Updated fluentbit version to `v3.1.9` in Dockerfile

@@ -16,8 +16,8 @@ type Configuration struct {
 
 func NewConfiguration() Configuration {
 	cfg := Configuration{
-		ListenPort:     "2020",
-		FluentBitPort:  "8080",
+		ListenPort:     "8080",
+		FluentBitPort:  "2020",
 		EnvPrefix:      "splunk-cf-logdrain",
 		TransportUrl:   "",
 		SyslogEndpoint: "localhost:5140",

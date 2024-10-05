@@ -1,15 +1,27 @@
 package handlers
 
 import (
-	"github.com/labstack/echo/v4"
+	"encoding/json"
+	"log/slog"
+	"net/http"
 )
 
-type versionResponse struct {
+type VersionResponse struct {
 	Version string `json:"version"`
 }
 
-func VersionHandler(version string) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		return c.JSON(200, &versionResponse{version})
+func VersionHandler(version string) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		response := &VersionResponse{
+			Version: version,
+		}
+		w.WriteHeader(http.StatusOK)
+		jsonResponse, err := json.Marshal(response)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			slog.Error("Failed to marshal health response", "reason", err.Error())
+			w.Write([]byte{})
+		}
+		w.Write(jsonResponse)
 	}
 }

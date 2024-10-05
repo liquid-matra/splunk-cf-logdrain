@@ -1,12 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"log/slog"
 	"os"
 	"os/signal"
 	"splunk-cf-logdrain/handlers"
-
-	"github.com/labstack/echo/v4"
 
 	"net/http"
 	_ "net/http/pprof"
@@ -17,35 +15,25 @@ var release = "v1.2.2"
 var buildVersion = release + "-" + commit
 
 func main() {
-	e := make(chan *echo.Echo, 1)
+	e := make(chan *http.ServeMux, 1)
 	os.Exit(realMain(e))
 }
 
-func realMain(echoChan chan<- *echo.Echo) int {
+func realMain(serverChan chan<- *http.ServeMux) int {
 	cfg := NewConfiguration()
 
-	// Echo framework
-	e := echo.New()
+	// http server and routes
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /health", handlers.HealthHandler)
+	mux.HandleFunc("GET /api/version", handlers.VersionHandler(buildVersion))
+	mux.HandleFunc("POST /syslog/drain/"+cfg.Token, handlers.SyslogHandler(cfg.Token, cfg.SyslogEndpoint))
 
-	// Middleware
-	healthHandler := handlers.HealthHandler{}
-	e.GET("/health", healthHandler.Handler())
-	e.GET("/api/version", handlers.VersionHandler(buildVersion))
-
-	syslogHandler, err := handlers.NewSyslogHandler(cfg.Token, cfg.SyslogEndpoint)
-	if err != nil {
-		fmt.Printf("syslogHandler: %v\n", err)
-		return 8
-	}
-	e.POST("/syslog/drain/:token", syslogHandler.Handler())
-
-	setupPprof()
 	setupInterrupts()
 
-	echoChan <- e
+	serverChan <- mux
 	exitCode := 0
-	if err := e.Start(":" + cfg.ListenPort); err != nil {
-		fmt.Printf("error: %v\n", err)
+	if err := http.ListenAndServe(":"+cfg.ListenPort, mux); err != nil {
+		slog.Error("unable to run http server", "description", err.Error())
 		exitCode = 6
 	}
 	return exitCode
@@ -63,14 +51,6 @@ func setupInterrupts() {
 	go func() {
 		for range done {
 			os.Exit(0)
-		}
-	}()
-}
-
-func setupPprof() {
-	go func() {
-		err := http.ListenAndServe("localhost:6060", nil)
-		if err != nil {
 		}
 	}()
 }

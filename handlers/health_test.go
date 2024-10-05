@@ -1,30 +1,40 @@
 package handlers_test
 
 import (
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"splunk-cf-logdrain/handlers"
 	"testing"
-
-	"github.com/philips-software/logproxy/handlers"
-
-	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
 )
 
-var statusJSON = "{\"status\":\"UP\"}\n"
-
-func TestHealth(t *testing.T) {
-	// Setup
-	e := echo.New()
-	req := httptest.NewRequest(echo.GET, "/health", nil)
+func TestHealthHandler(t *testing.T) {
+	req, err := http.NewRequest(http.MethodGet, "/health", nil)
+	if err != nil {
+		t.Fatalf("could not create test health handler request: %v", err)
+	}
 	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	healthHandler := &handlers.HealthHandler{}
-	handler := healthHandler.Handler(nil)
+	handlers.HealthHandler(rec, req)
+	res := rec.Result()
 
-	// Assertions
-	if assert.NoError(t, handler(c)) {
-		assert.Equal(t, http.StatusOK, rec.Code)
-		assert.Equal(t, statusJSON, rec.Body.String())
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("health handler returned wrong status code: got %v want %v", res.StatusCode, http.StatusOK)
+	}
+
+	b, err := io.ReadAll(res.Body)
+	if err != nil {
+		t.Fatalf("could not read response body: %v", err)
+	}
+
+	var gotResponse handlers.HealthResponse
+	if err := json.Unmarshal(b, &gotResponse); err != nil {
+		t.Fatalf("could not marshal Health response: %v", err)
+	}
+
+	expectedResponse := handlers.HealthResponse{Status: "UP"}
+
+	if expectedResponse.Status != gotResponse.Status {
+		t.Errorf("health handler returned wrong status: got %v want %v", gotResponse.Status, expectedResponse.Status)
 	}
 }
